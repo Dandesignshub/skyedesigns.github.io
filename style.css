@@ -1330,6 +1330,17 @@ body.dark-mode #crypto-news .refresh-link {
 #contact {
     background-color: var(--second-background);
     padding: 2em 5% 2em 5%;
+    position: relative;
+    z-index: 1;
+}
+
+form textarea {
+    -webkit-user-select: text;
+    user-select: text;
+    touch-action: manipulation;
+    pointer-events: auto;
+    position: relative;
+    z-index: 2;
 }
 
 .contact-intro {
