@@ -173,6 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (contactForm) {
         contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const textarea = contactForm.querySelector('textarea');
             const formData = new FormData(contactForm);
             const formObject = {};
             formData.forEach((value, key) => {
@@ -199,6 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('An error occurred while sending the message. Please try again later.');
                 console.error('Form submission error:', error);
             }
+            if (textarea) textarea.focus();
         });
     }
 
@@ -237,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 container.appendChild(newsItem);
             });
-            updateObservers();
+            updateObservers(); // Ensure new elements are observed for animations
         }
 
         // Fetch crypto and general news
@@ -474,8 +476,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Optimized scroll animation
+    // Optimized scroll animation with expanded elements
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isMobile = window.innerWidth <= 968 || window.matchMedia('(max-device-width: 968px)').matches;
     if (!prefersReducedMotion && 'IntersectionObserver' in window) {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -487,12 +490,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }, {
-            threshold: window.innerWidth <= 968 ? 0.05 : 0.1,
-            rootMargin: window.innerWidth <= 968 ? '0px 0px -5% 0px' : '0px 0px -10% 0px'
+            threshold: isMobile ? 0.05 : 0.1,
+            rootMargin: isMobile ? '0px 0px -10% 0px' : '0px 0px -20% 0px'
         });
 
         window.updateObservers = () => {
-            document.querySelectorAll('.mobile-scroll, .slide-left, .slide-right').forEach(el => {
+            document.querySelectorAll('.mobile-scroll, .slide-left, .slide-right, .scroll-reveal, #home .profile-img').forEach(el => {
                 observer.unobserve(el);
             });
 
@@ -504,8 +507,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 el.classList.add('slide-left');
                 observer.observe(el);
             });
+
             document.querySelectorAll('.skills-progress').forEach(el => {
                 el.classList.add('slide-right');
+                observer.observe(el);
+            });
+
+            document.querySelectorAll('.scroll-reveal').forEach(el => {
+                observer.observe(el);
+            });
+
+            document.querySelectorAll('#home .profile-img').forEach(el => {
                 observer.observe(el);
             });
         };
@@ -520,10 +532,18 @@ document.addEventListener('DOMContentLoaded', () => {
             updateObservers();
         });
     } else {
-        document.querySelectorAll('.mobile-scroll, .slide-left, .slide-right').forEach(el => {
+        document.querySelectorAll('.mobile-scroll, .slide-left, .slide-right, .scroll-reveal, #home .profile-img').forEach(el => {
             el.classList.add('visible');
         });
     }
+
+    // Touch focus for textarea
+    document.querySelectorAll('textarea').forEach(textarea => {
+        textarea.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            textarea.focus();
+        }, { passive: false });
+    });
 
     // Fix mobile responsiveness
     function applyInitialResponsiveSettings() {
@@ -693,9 +713,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.key === 'Enter' && selectedCrypto) calculateConversion();
         });
     }
-});
 
-// Trigger resize on load
-window.addEventListener('load', () => {
-    window.dispatchEvent(new Event('resize'));
+    // Trigger resize on load
+    window.addEventListener('load', () => {
+        window.dispatchEvent(new Event('resize'));
+    });
 });
